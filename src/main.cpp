@@ -261,10 +261,13 @@ void setup(){
 
   // Set LED Flash as output
   pinMode(FLASH_LED_PIN, OUTPUT);
+  pinMode(PIR_PIN, INPUT);
+  pinMode(HCSR04_TRIG_PIN, OUTPUT);
+  pinMode(HCSR04_ECHO_PIN, INPUT);
   digitalWrite(FLASH_LED_PIN, flashState);
 
   // Config and init the camera
-  configInitCamera();
+  // configInitCamera();
 
   // Connect to Wi-Fi
   WiFi.mode(WIFI_STA);
@@ -283,18 +286,18 @@ void setup(){
 }
 
 void loop() {
-  if (sendPhoto) {
-    Serial.println("Preparing photo");
-    sendPhotoTelegram(); 
-    sendPhoto = false; 
-  }
+  // if (sendPhoto) {
+  //   Serial.println("Preparing photo");
+  //   sendPhotoTelegram(); 
+  //   sendPhoto = false; 
+  // }
   if (millis() > lastTimeBotRan + botRequestDelay)  {
-    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-    while (numNewMessages) {
-      Serial.println("got response");
-      handleNewMessages(numNewMessages);
-      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-    }
+    // int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    // while (numNewMessages) {
+    //   Serial.println("got response");
+    //   handleNewMessages(numNewMessages);
+    //   numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    // }
     // Read sensors
     readPIRSensor();
     readHCSR04Sensor();
