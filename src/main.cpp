@@ -7,8 +7,8 @@
 #include <UniversalTelegramBot.h>
 #include <ArduinoJson.h>
 
-const char *ssid = "Subhanallah";
-const char *password = "muhammadnabiyullah";
+const char *ssid = "PEST-CONTROL";
+const char *password = "PEST-CONTROL";
 const char *BOTtoken = "7729711315:AAFYK5tA8I4Rje052_kQKz0eFLP2XoZMZac";
 const char *CHAT_ID = "1222027671";
 
@@ -159,13 +159,16 @@ String sendPhotoTelegram()
   if (clientTCP.connect(myDomain, 443))
   {
     Serial.println("Connection successful");
+    Serial.println("Sending photo to Telegram...");
 
     String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"chat_id\"; \r\n\r\n" + String(CHAT_ID) + "\r\n--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
-    String tail = "\r\n--0RandomNerdTutorials--\r\n";
+    String tail = "\r\n--RandomNerdTutorials--\r\n";
 
     size_t imageLen = fb->len;
     size_t extraLen = head.length() + tail.length();
     size_t totalLen = imageLen + extraLen;
+
+    Serial.printf("Image size: %d bytes, Total: %d bytes\n", imageLen, totalLen);
 
     clientTCP.println("POST /bot" + String(BOTtoken) + "/sendPhoto HTTP/1.1");
     clientTCP.println("Host: " + String(myDomain));
@@ -194,6 +197,7 @@ String sendPhotoTelegram()
 
     esp_camera_fb_return(fb);
 
+    Serial.println("Photo data sent. Waiting for response...");
     int waitTime = 10000; // timeout 10 seconds
     long startTimer = millis();
     boolean state = false;
@@ -221,7 +225,16 @@ String sendPhotoTelegram()
         break;
     }
     clientTCP.stop();
-    Serial.println(getBody);
+    Serial.println();
+    if (getBody.length() > 0)
+    {
+      Serial.println("Response received:");
+      Serial.println(getBody);
+    }
+    else
+    {
+      Serial.println("No response received from Telegram");
+    }
   }
   else
   {
@@ -251,7 +264,7 @@ void setup()
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
-  clientTCP.setCACert(TELEGRAM_CERTIFICATE_ROOT);
+  clientTCP.setInsecure(); // Skip SSL certificate verification for now
   while (WiFi.status() != WL_CONNECTED)
   {
     Serial.print(".");
